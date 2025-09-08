@@ -269,6 +269,42 @@
           }
         }
       }
+    },
+    "/providers/Microsoft.Management/checkNameAvailability": {
+      "post": {
+        "tags": [
+          "CheckNameAvailability"
+        ],
+        "operationId": "CheckNameAvailability",
+        "description": "Checks if the specified service group name is valid and unique",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "#/parameters/CheckNameAvailabilityParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK. The request has succeeded.",
+            "schema": {
+              "$ref": "#/definitions/CheckNameAvailabilityResult"
+            }
+          },
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "x-ms-examples": {
+          "CheckManagementGroupNameAvailability": {
+            "$ref": "./examples/CheckServiceGroupNameAvailability.json"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -366,6 +402,68 @@
           "type": "string"
         }
       }
+    },
+    "CheckNameAvailabilityResult": {
+      "description": "Describes the result of the request to check service group name availability.",
+      "properties": {
+        "nameAvailable": {
+          "description": "Required. True indicates name is valid and available. False indicates the name is invalid, unavailable, or both.",
+          "type": "boolean",
+          "readOnly": true
+        },
+        "reason": {
+          "description": "Required if nameAvailable == false. Invalid indicates the name provided does not match the resource provider's naming requirements (incorrect length, unsupported characters, etc.) AlreadyExists indicates that the name is already in use and is therefore unavailable.",
+          "type": "string",
+          "enum": [
+            "Invalid",
+            "AlreadyExists"
+          ],
+          "x-ms-enum": {
+            "name": "Reason",
+            "modelAsString": false,
+            "values": [
+              {
+                "value": "Invalid"
+              },
+              {
+                "value": "AlreadyExists"
+              }
+            ]
+          },
+          "readOnly": true
+        },
+        "message": {
+          "description": "Required if nameAvailable == false. Localized. If reason == invalid, provide the user with the reason why the given name is invalid, and provide the resource naming requirements so that the user can select a valid name. If reason == AlreadyExists, explain that is already in use, and direct them to select a different name.",
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "CheckNameAvailabilityRequest": {
+      "description": "Service group name availability check parameters.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "the name to check for availability"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "Microsoft.Management/serviceGroups"
+          ],
+          "x-ms-enum": {
+            "name": "Type",
+            "modelAsString": false,
+            "values": [
+              {
+                "value": "Microsoft.Management/serviceGroups"
+              }
+            ]
+          },
+          "description": "fully qualified resource type which includes provider namespace"
+        }
+      }
     }
   },
   "parameters": {
@@ -376,6 +474,16 @@
       "type": "string",
       "pattern": "^[a-zA-Z0-9\\-_().]{1,90}$",
       "description": "ServiceGroup Name.",
+      "x-ms-parameter-location": "method"
+    },
+    "CheckNameAvailabilityParameter": {
+      "name": "checkNameAvailabilityRequest",
+      "in": "body",
+      "required": true,
+      "description": "Service group name availability check parameters.",
+      "schema": {
+        "$ref": "#/definitions/CheckNameAvailabilityRequest"
+      },
       "x-ms-parameter-location": "method"
     }
   }
